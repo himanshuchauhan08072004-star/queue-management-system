@@ -1,0 +1,64 @@
+// Prisma schema for the Queue Management System
+// Datasource: Supabase PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QueueStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum TokenStatus {
+  WAITING
+  SERVING
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Queue {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  status    QueueStatus @default(ACTIVE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  tokens    Token[]
+
+  @@map("queues")
+}
+
+model Token {
+  id            String      @id @default(cuid())
+  queueId       String
+  queue         Queue       @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  tokenNumber   String
+  customerName  String
+  mobile        String?
+  notes         String?
+  status        TokenStatus @default(WAITING)
+  position      Int
+  createdAt     DateTime    @default(now())
+  startedAt     DateTime?
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  @@index([queueId, status])
+  @@map("tokens")
+}

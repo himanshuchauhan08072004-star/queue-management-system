@@ -1,0 +1,33 @@
+# Optional: local Postgres + backend for development without Supabase.
+# Usage: docker compose up --build
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: queue_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - qms_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/queue_management?schema=public
+      JWT_SECRET: change-this-in-production
+      JWT_EXPIRES_IN: 8h
+      CLIENT_ORIGIN: http://localhost:5173
+
+volumes:
+  qms_pgdata:
