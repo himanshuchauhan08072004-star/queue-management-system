@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Search, ListOrdered } from "lucide-react";
 import { useQueues, useDeleteQueue, useUpdateQueue } from "../hooks/useQueues";
 import QueueList from "../components/queue/QueueList";
@@ -14,10 +14,17 @@ export default function QueuesPage() {
   const deleteQueue = useDeleteQueue();
   const updateQueue = useUpdateQueue();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
   const [queueToDelete, setQueueToDelete] = useState<Queue | null>(null);
+
+  // Picks up searches submitted from the header's global search box.
+  useEffect(() => {
+    const queryFromUrl = searchParams.get("q") ?? "";
+    setSearch(queryFromUrl);
+  }, [searchParams]);
 
   const filteredQueues = useMemo(() => {
     if (!queues) return [];

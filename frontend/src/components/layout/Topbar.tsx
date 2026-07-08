@@ -14,7 +14,9 @@ export default function Topbar({ onMenuClick, isDark, onToggleDark }: TopbarProp
   const navigate = useNavigate();
   const [now, setNow] = useState(new Date());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
@@ -31,9 +33,28 @@ export default function Topbar({ onMenuClick, isDark, onToggleDark }: TopbarProp
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ⌘K / Ctrl+K focuses the global search box from anywhere in the app.
+  useEffect(() => {
+    function handleShortcut(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", handleShortcut);
+    return () => document.removeEventListener("keydown", handleShortcut);
+  }, []);
+
   function handleLogout() {
     logout();
     navigate("/login");
+  }
+
+  function runSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const query = searchValue.trim();
+    navigate(query ? `/queues?q=${encodeURIComponent(query)}` : "/queues");
+    searchRef.current?.blur();
   }
 
   return (
@@ -47,13 +68,22 @@ export default function Topbar({ onMenuClick, isDark, onToggleDark }: TopbarProp
           <Menu size={20} />
         </button>
 
-        <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400 dark:border-slate-700 dark:bg-slate-800 sm:flex">
-          <Search size={16} />
-          <span>Search queues, tokens...</span>
-          <kbd className="ml-4 rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:border-slate-600 dark:bg-slate-900">
+        <form
+          onSubmit={runSearch}
+          className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-800 sm:flex"
+        >
+          <Search size={16} className="text-slate-400" />
+          <input
+            ref={searchRef}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            placeholder="Search queues..."
+            className="w-48 bg-transparent text-slate-700 placeholder:text-slate-400 focus:outline-none dark:text-slate-200"
+          />
+          <kbd className="ml-2 rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:border-slate-600 dark:bg-slate-900">
             ⌘K
           </kbd>
-        </div>
+        </form>
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4">
