@@ -7,7 +7,7 @@ live analytics.
 **Stack:** React 19 + Vite + TypeScript + Tailwind CSS (frontend) · Node.js +
 Express + TypeScript (backend) · PostgreSQL + Prisma ORM (database) · JWT auth.
 
----
+## LIVE - https://queue-management-system-r0wo.onrender.com/dashboard
 
 ## 1. Project structure
 
