@@ -154,4 +154,4 @@ from these timestamps — nothing is pre-aggregated or stored redundantly.
 - All validation (queue names, customer names, email/password, duplicate
   queue names) is done with Zod on both the frontend (instant feedback) and
   backend (source of truth).
-  ## Himanshu Chauhan
+  ## Himanshu Chauhan himanshuchauhan08072004@gmail.com
